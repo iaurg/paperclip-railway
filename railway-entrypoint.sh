@@ -1,4 +1,5 @@
 #!/bin/sh
+# Runs as CMD, i.e. already as `node` (see Dockerfile). Never run it as root.
 set -e
 
 home_dir="${PAPERCLIP_HOME:-/paperclip}"
@@ -62,10 +63,10 @@ bootstrap_first_admin() {
   echo " Paperclip has no admin yet. Open the invite URL below to become"
   echo " the CEO/owner of this instance (expires in 72h; redeploy for a new one)."
   echo "=================================================================="
-  cd /app && gosu node node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts auth bootstrap-ceo
+  cd /app && node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts auth bootstrap-ceo
 }
 
 # Double fork so tini (PID 1) reaps the helper instead of the node server.
 ( bootstrap_first_admin & )
 
-exec docker-entrypoint.sh "$@"
+exec "$@"

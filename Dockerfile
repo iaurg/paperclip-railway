@@ -13,6 +13,8 @@ ENV PAPERCLIP_DEPLOYMENT_MODE=authenticated \
     PORT=3100 \
     TRUST_PROXY=1
 
-# Keep tini as PID 1 (agent runs spawn processes that must be reaped).
-ENTRYPOINT ["/usr/bin/tini", "--", "railway-entrypoint.sh"]
-CMD ["node", "--import", "./server/node_modules/tsx/dist/loader.mjs", "server/dist/index.js"]
+# Upstream ENTRYPOINT (tini -> docker-entrypoint.sh) is inherited: it fixes
+# volume ownership as root, then drops to `node` before running this CMD. Our
+# script must stay here, not in ENTRYPOINT: the volume is writable by agent
+# processes, so any root-run file handling in it is a privilege escalation.
+CMD ["railway-entrypoint.sh", "node", "--import", "./server/node_modules/tsx/dist/loader.mjs", "server/dist/index.js"]
