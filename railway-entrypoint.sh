@@ -5,12 +5,22 @@ set -e
 home_dir="${PAPERCLIP_HOME:-/paperclip}"
 instance_dir="$home_dir/instances/${PAPERCLIP_INSTANCE_ID:-default}"
 config_path="${PAPERCLIP_CONFIG:-$instance_dir/config.json}"
-public_url="${PAPERCLIP_AUTH_PUBLIC_BASE_URL:-$PAPERCLIP_PUBLIC_URL}"
+# A template variable like https://${{RAILWAY_PUBLIC_DOMAIN}} renders as a bare
+# "https://" (or nothing) when the service had no domain yet, so treat that as
+# unset and fall back to the domain Railway injects at runtime.
+is_url() { case "$1" in http://?*|https://?*) return 0 ;; *) return 1 ;; esac; }
+public_url=""
+for candidate in "$PAPERCLIP_AUTH_PUBLIC_BASE_URL" "$PAPERCLIP_PUBLIC_URL" "${RAILWAY_PUBLIC_DOMAIN:+https://$RAILWAY_PUBLIC_DOMAIN}"; do
+  if is_url "$candidate"; then public_url="${candidate%/}"; break; fi
+done
 
 if [ -z "$public_url" ]; then
-  echo "railway-entrypoint: set PAPERCLIP_PUBLIC_URL (e.g. https://\${{RAILWAY_PUBLIC_DOMAIN}}); public mode requires it" >&2
+  echo "railway-entrypoint: no public URL. In Railway, open this service → Settings → Networking → Generate Domain (port 3100), then redeploy." >&2
   exit 1
 fi
+
+# The server and the bootstrap CLI read these directly; keep them consistent.
+export PAPERCLIP_PUBLIC_URL="$public_url" PAPERCLIP_AUTH_PUBLIC_BASE_URL="$public_url"
 
 # The server runs from env alone, but `paperclipai auth bootstrap-ceo` refuses to
 # run without a config file. Paths are absolute on purpose: the schema defaults
