@@ -2,6 +2,14 @@
 
 Paperclip is the open-source app for running a company of AI agents: hire Claude Code, Codex and other agents into an org chart, give them goals and monthly budgets, and review their work from one board. This template deploys it production-ready in one click: login required, Postgres included, every secret pre-generated, nothing to fill in.
 
+## ⚠️ First login
+
+> **Your first admin account is created from a one-time link in the deploy logs, not from a sign-up page.**
+>
+> After the deploy turns green, open the **Paperclip** service → **Deployments** → **View Logs** and search for **`Invite URL`**. Open that link to create the owner account.
+>
+> This is on purpose, for security: only members of your Railway project can read the logs, so nobody who finds your URL can claim your instance first. The link expires in 72 hours; if you miss it, **Restart** the service to get a new one.
+
 ## About Hosting Paperclip
 
 Paperclip is a Node.js server with a bundled web UI. It keeps companies, agents, tickets and run history in PostgreSQL, and runs agents as processes inside its own container, using the Claude Code, Codex, OpenCode and Gemini CLIs that ship in the official image. Files, the secrets encryption key and agent workspaces live on a persistent volume.
