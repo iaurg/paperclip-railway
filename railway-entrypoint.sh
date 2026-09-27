@@ -2,6 +2,16 @@
 # Runs as CMD, i.e. already as `node` (see Dockerfile). Never run it as root.
 set -e
 
+# The template pre-fills provider keys with a placeholder so Railway doesn't mark
+# them required. Any non-empty value counts as a real key to the agent CLIs (and
+# ANTHROPIC_API_KEY overrides a Claude subscription token), so drop placeholders.
+for name in ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY GEMINI_API_KEY GOOGLE_API_KEY; do
+  eval "value=\${$name-}"
+  case "$value" in
+    ""|OPTIONAL_*|\"OPTIONAL_*) unset "$name" ;;
+  esac
+done
+
 home_dir="${PAPERCLIP_HOME:-/paperclip}"
 instance_dir="$home_dir/instances/${PAPERCLIP_INSTANCE_ID:-default}"
 config_path="${PAPERCLIP_CONFIG:-$instance_dir/config.json}"
