@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/iaurg/paperclip-railway/main/assets/icon.png" alt="Paperclip (Zero Config)" width="128" height="128">
+</p>
+
 # Deploy and Host Paperclip with Railway
 
 Paperclip is the open-source app for running a company of AI agents: hire Claude Code, Codex and other agents into an org chart, give them goals and monthly budgets, and review their work from one board. This template deploys it production-ready in one click: login required, Postgres included, every secret pre-generated, nothing to fill in.
